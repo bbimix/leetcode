@@ -8,28 +8,39 @@ import java.util.Arrays;
 
 public class Lc106 {
     public TreeNode buildTree(int[] inorder, int[] postorder) {
-        int n = postorder.length;
-        if (n == 1) {
-            return new TreeNode(postorder[0]);
-        }
+        return buildTree(inorder, postorder, 0, inorder.length - 1, 0, postorder.length - 1);
+    }
 
-        TreeNode root = new TreeNode(postorder[n - 1]);
+    private TreeNode buildTree(int[] inorder, int[] postorder, int li, int ri, int lp, int rp) {
+        int n = ri - li + 1;
+
+        if (li < 0 || ri < 0 || lp > inorder.length || rp > inorder.length || li > ri || lp > rp)
+            return null;
+
+        if (n == 1)
+            return new TreeNode(inorder[ri]);
+
+        int tail = postorder[rp];
+        TreeNode root = new TreeNode(tail);
+
         int rooti = 0;
-        for (int i = 0; i < n; i++) {
-            if (inorder[i] == postorder[n - 1]) {
+        for (int i = li; i <= ri; i++) {
+            if (inorder[i] == tail) {
                 rooti = i;
                 break;
             }
         }
 
-        int[] newInR = Arrays.copyOfRange(inorder, rooti + 1, n);
-        int[] newInL = Arrays.copyOfRange(inorder, 0, rooti);
-        int[] newPostR = Arrays.copyOfRange(postorder, rooti, n - 1);
-        int[] newPostL = Arrays.copyOfRange(postorder, 0, rooti);
-
-        root.right = buildTree(newInR, newPostR);
-        root.left = buildTree(newInL, newPostL);
+        root.right = buildTree(inorder, postorder, rooti + 1, ri, rp - (ri - rooti),rp - 1);
+        root.left = buildTree(inorder, postorder, li, rooti - 1, rp - ri + li, rp - (ri - rooti) - 1);
 
         return root;
+    }
+
+    public static void main(String[] args) {
+        int[] in = {9,3,15,20,7};
+        int[] post = {9,15,7,20,3};
+        Lc106 lc106 = new Lc106();
+        lc106.buildTree(in, post);
     }
 }
