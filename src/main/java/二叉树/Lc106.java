@@ -1,38 +1,43 @@
 package 二叉树;
 
 import java.util.Arrays;
+import java.util.HashMap;
 
 /**
  * 中序后序生成二叉树
  */
 
 public class Lc106 {
+
+    int postIndex;
+    HashMap<Integer, Integer> map;
+
     public TreeNode buildTree(int[] inorder, int[] postorder) {
-        return buildTree(inorder, postorder, 0, inorder.length - 1, 0, postorder.length - 1);
+
+        /**
+         * 由于每一个值都不一样 可以生成一个 值对应下标的map
+         */
+        map = new HashMap<>();
+        postIndex = inorder.length - 1;
+        for (int i = 0; i < inorder.length; i++) {
+            map.put(inorder[i], i);
+        }
+        return buildTree(inorder, postorder, 0, inorder.length - 1);
     }
 
-    private TreeNode buildTree(int[] inorder, int[] postorder, int li, int ri, int lp, int rp) {
-        int n = ri - li + 1;
+    private TreeNode buildTree(int[] inorder, int[] postorder, int l, int r) {
 
-        if (li < 0 || ri < 0 || lp > inorder.length || rp > inorder.length || li > ri || lp > rp)
+        if (l > r)
             return null;
 
-        if (n == 1)
-            return new TreeNode(inorder[ri]);
 
-        int tail = postorder[rp];
-        TreeNode root = new TreeNode(tail);
 
-        int rooti = 0;
-        for (int i = li; i <= ri; i++) {
-            if (inorder[i] == tail) {
-                rooti = i;
-                break;
-            }
-        }
+        int rootv = postorder[postIndex--];
+        TreeNode root = new TreeNode(rootv);
+        int rooti = map.get(rootv);
 
-        root.right = buildTree(inorder, postorder, rooti + 1, ri, rp - (ri - rooti),rp - 1);
-        root.left = buildTree(inorder, postorder, li, rooti - 1, rp - ri + li, rp - (ri - rooti) - 1);
+        root.right = buildTree(inorder, postorder, rooti + 1, r);
+        root.left = buildTree(inorder, postorder, l, rooti - 1);
 
         return root;
     }
